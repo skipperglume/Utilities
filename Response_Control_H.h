@@ -62,6 +62,7 @@ public:
 
     unsigned N_Jets, N_Jets_reco, N_Jets_true;
     Response_vs_E_true();
+    ~Response_vs_E_true();
     TChain* Set_Up_TChain(std::string path_to_files, std::string TTree_name);
 
     void Response_Control(std::string path_to_files, std::string TTree_name , int increment , std::string Step, float eta_min , float eta_max, std::string LegendName , int Num_Leading_Jets  );
@@ -233,5 +234,8 @@ float Response_vs_E_true::correctionFactor(const float pt, const  float eta, con
     //std::cout<<"m_useRho = "<<m_useRho<<std::endl;
     // std::cout<<"1D\n";
     return correctedPt1D(pt,eta,area,rho,mu,NPV)/pt;
+}
+Response_vs_E_true::~Response_vs_E_true(){
+    std::cout << "Finished the loop\n";
 }
 #endif
