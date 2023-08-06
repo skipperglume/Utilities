@@ -88,15 +88,32 @@ public:
     template<class T>
     void displayVector(const std::vector<T> & l_vector);
 
+    static const Int_t E_Bins_N = 28;
+    const Double_t  E_Bins[E_Bins_N+1] = {10, 15, 20, 25, 30, 35, 40, 50, 60, 80, 100, 120, 150, 200, 240, 300, 400, 500, 600, 800, 1000, 1200, 1500, 2000, 2500, 3000, 3500, 4000, 5500 };
 
     std::vector<std::function<void()>> functions;
     void displayProgress(const uint indexEntry, const uint N_Entries, const float percent);
-    void fillHistograms(std::shared_ptr<std::vector<TH2D>> const & histogramVector, const std::vector<float> bins);
-    std::shared_ptr<std::vector<TH2D>> p = std::make_shared<std::vector<TH2D>>();
-    std::vector<float> bins;
+    template<class T>    
+    void fill2DHistograms(std::shared_ptr<std::vector<TH2D>> const &histogramVector, const std::vector<T> &bins, const T &threshold, const Double_t &x, const Double_t &y, const Double_t &weight);
+    std::shared_ptr<std::vector<TH2D>> R_vs_E_true_vector = std::make_shared<std::vector<TH2D>>();
+    std::vector<float> etaBins;
     uint numberOfBins;
     void makeBinning(float eta_min , float eta_max );
 };
+//+I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+
+template<class T>
+int findBinIndex (const std::vector<T> &binning, const T value) {
+    typename std::vector<T>::const_iterator threshold = std::find_if(binning.begin(), binning.end(), [&value](const T &iter){
+        return iter > value;
+    });
+    if(threshold == binning.end()){
+        return -1;
+    }
+    else if (threshold == binning.begin()){
+        return -2;
+    }
+    return std::distance(binning.begin(), threshold)-1;
+}
 //+I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+
 float roundUp(float var){
     // we use array of chars to store number
@@ -120,16 +137,20 @@ void Response_vs_E_true::displayVector(const std::vector<T> & l_vector){
   std::cout << " \n";
 }
 //+I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+
-// void Response_vs_E_true::fillHistograms(std::shared_ptr<std::vector<TH2D>> const & histogramVector, const std::vector<float> bins){
-//     if (  (*histogramVector).size() != bins.size()-1){
-//         std::cout<<"ERRROR: wrong binning\n";
-//         exit(1);
-//     }
-//     // std::shared_ptr<Base> const& s
+template<class T>
+void Response_vs_E_true::fill2DHistograms(std::shared_ptr<std::vector<TH2D>> const &histogramVector, const std::vector<T> &bins, const T &threshold, const Double_t &x, const Double_t &y, const Double_t &weight){
+    if (  (*histogramVector).size() != bins.size()){
+        std::cout<<"ERRROR: wrong binning\n";
+        exit(1);
+    }
+    const int binIndex = findBinIndex(bins, threshold);
+    if(binIndex < 0){return;}
+    (*histogramVector)[binIndex].Fill(x,y,weight);
+    // std::shared_ptr<Base> const& s
 
     
-//     return;
-// }
+    return;
+}
 //+I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+
 void Response_vs_E_true::displayProgress(const uint indexEntry, const uint N_Entries, const float percent){
     const uint step = percent * N_Entries;
@@ -137,7 +158,7 @@ void Response_vs_E_true::displayProgress(const uint indexEntry, const uint N_Ent
     // std::cout <<indexEntry / step <<" "<<prevStep <<"\n";
     // indexEntry / step
 
-    if(prevStep != indexEntry / step) std::cout<< ((float) indexEntry / (float)N_Entries)* 100.0<<"%\n";
+    if(prevStep != indexEntry / step) std::cout<<"Done: "<< ((float) indexEntry / (float)N_Entries)* 100.0<<"%\n";
     prevStep = indexEntry / step;
     return;
 }
@@ -152,9 +173,19 @@ void Response_vs_E_true::makeBinning(float eta_min, float eta_max ){
     step = roundUp(step);
     std::cout<<step<<" "<<(eta_max - eta_min)<<"\n";
     for (  int i = 0 ; i < numberOfBins; i ++ )
-        bins.push_back(roundUp(eta_min+i*step));
-    std::cout<< bins.size()<<": ";
-    displayVector(bins);
+        etaBins.push_back(roundUp(eta_min+i*step));
+    std::cout<< etaBins.size()<<": ";
+    displayVector(etaBins);
+    TString nameR_vs_Etrue = "response vs E true_";
+    // R_vs_E_true = new TH2F("response v e true","response v e true",  E_Bins_N,E_Bins, 180,-1.2,2.4);
+    for ( uint i = 0; i < etaBins.size(); i++){
+        nameR_vs_Etrue += std::to_string(i);
+        TH2D histo(nameR_vs_Etrue, nameR_vs_Etrue, E_Bins_N, E_Bins, 180,-1.2,2.4);
+        (*R_vs_E_true_vector).push_back(histo);
+        nameR_vs_Etrue = "response vs E true";
+    }
+    std::cout<< etaBins.size()<<": "<< (*R_vs_E_true_vector).size()<<"\n";
+    
     return;
 }
 //+I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+

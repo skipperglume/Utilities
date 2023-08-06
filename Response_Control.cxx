@@ -96,20 +96,22 @@ void Response_vs_E_true::Response_Control( std::string path_to_files, std::strin
     float Total_Weight = 0 ;
     
     
-    const Int_t E_Bins_N = 28;
-    Double_t  E_Bins[E_Bins_N+1] = {10, 15, 20, 25, 30, 35, 40, 50, 60, 80, 100, 120, 150, 200, 240, 300, 400, 500, 600, 800, 1000, 1200, 1500, 2000, 2500, 3000, 3500, 4000, 5500 };
+    
     // const Int_t E_Bins_N = 2;
     // Double_t  E_Bins[E_Bins_N+1] = {10, 15, 20};
 
     R_vs_E_true = new TH2F("response v e true","response v e true",  E_Bins_N,E_Bins,180,-1.2,2.4);
     
-
+    float Eta;
+    Double_t Energy, Response, Weight;
 
     /**/
     int indexEntry;
     const float percent = 0.06;
+
     functions.push_back([&]() { displayProgress(indexEntry, N_Entries, percent); });
-    // functions.push_back([&]() { function3("Hello", 'A', 2.71); });
+    functions.push_back([&]() { fill2DHistograms(R_vs_E_true_vector, etaBins, Eta, Energy, Response, Weight); });
+    
     
     for(auto ientry = 0; ientry < N_Entries; ientry+=increment){ //Loop on entries
         indexEntry = ientry;
@@ -155,14 +157,22 @@ void Response_vs_E_true::Response_Control( std::string path_to_files, std::strin
             }
             
         }
-        // Call each function in the vector        
-        // for (const auto& func : functions) {
-        //     func(); 
-        // }
-        std::for_each(functions.begin(), functions.end(), 
-        [](std::function<void()> function){
-            function();
-        });
+        
+        if (jet_eta->size()>0){
+            static const uint jet_iter = 0;
+            Eta = static_cast<float>(jet_eta->at(jet_iter));
+            Energy = static_cast<Double_t>(jet_true_E->at(jet_iter) );
+            Response = static_cast<Double_t>(jet_E->at(jet_iter) / jet_true_E->at(jet_iter) );
+            Weight = static_cast<Double_t>(weight_tot);
+        //     // Call each function in the vector        
+            std::for_each(functions.begin(), functions.end(), 
+            [](std::function<void()> function){
+                function();
+            });
+        }
+        
+        
+        
         
 
         
@@ -245,8 +255,9 @@ int main ( int argc ,char* argv[] ){
 
     std::unique_ptr<Response_vs_E_true> h = std::make_unique<Response_vs_E_true>();
     h->makeBinning(lower_limit, upper_limit);
-    // h->Response_Control(fileName , treeName, increment, stepName, upper_limit, lower_limit, legendName , Num_Leading_Jets);
-    
+    h->Response_Control(fileName , treeName, increment, stepName, upper_limit, lower_limit, legendName , Num_Leading_Jets);
+
+
     /**/
     std::cout<<"C++ version: "<<__cplusplus<<std::endl;
     return 0;
