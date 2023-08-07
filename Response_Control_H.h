@@ -99,6 +99,32 @@ public:
     std::vector<float> etaBins;
     uint numberOfBins;
     void makeBinning(float eta_min , float eta_max );
+    // const void drawingHistograms(const std::shared_ptr<std::vector<TH2D>>  &histogramVector);
+    void drawingHistograms(const std::shared_ptr<std::vector<TH2D>>   &histogramVector)const{
+
+    //  TFile *f = new TFile("file.root", "RECREATE");  // recreate deletes the file if it already exists
+    // // create and do stuff...
+
+    //  f->cd();   // make sure they will be written to f
+    //  h1->Write();  // you can specify here the name of the canvas inside the file, e.g. h1->Write("canvas1")...
+    //  h2->Write();
+    //  f->Close();
+    for(  TH2D &histo2D: *histogramVector){
+        TCanvas tc  ("canvasToSave", "canvasToSave", 2800, 1600);
+        TString name = "./R_vs_Etrue/";
+        name+=histo2D.GetName();
+        name+=".png";
+        gROOT->SetStyle("ATLAS");
+        std::cout<< histo2D.GetName()<<" "<<histo2D.ClassName()<<" ";
+        tc.cd();
+        gPad->SetLogx(1);
+        histo2D.Draw("COLZ");
+        tc.SaveAs(name);
+
+    }
+    
+    return;
+    }
 };
 //+I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+
 template<class T>
@@ -139,7 +165,7 @@ void Response_vs_E_true::displayVector(const std::vector<T> & l_vector){
 //+I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+
 template<class T>
 void Response_vs_E_true::fill2DHistograms(std::shared_ptr<std::vector<TH2D>> const &histogramVector, const std::vector<T> &bins, const T &threshold, const Double_t &x, const Double_t &y, const Double_t &weight){
-    if (  (*histogramVector).size() != bins.size()){
+    if (  (*histogramVector).size() != bins.size()-1){
         std::cout<<"ERRROR: wrong binning\n";
         exit(1);
     }
@@ -176,13 +202,13 @@ void Response_vs_E_true::makeBinning(float eta_min, float eta_max ){
         etaBins.push_back(roundUp(eta_min+i*step));
     std::cout<< etaBins.size()<<": ";
     displayVector(etaBins);
-    TString nameR_vs_Etrue = "response vs E true_";
+    TString nameR_vs_Etrue = "response_vs_E_true_";
     // R_vs_E_true = new TH2F("response v e true","response v e true",  E_Bins_N,E_Bins, 180,-1.2,2.4);
-    for ( uint i = 0; i < etaBins.size(); i++){
+    for ( uint i = 0; i < etaBins.size()-1; i++){
         nameR_vs_Etrue += std::to_string(i);
         TH2D histo(nameR_vs_Etrue, nameR_vs_Etrue, E_Bins_N, E_Bins, 180,-1.2,2.4);
         (*R_vs_E_true_vector).push_back(histo);
-        nameR_vs_Etrue = "response vs E true";
+        nameR_vs_Etrue = "response_vs_E_true_";
     }
     std::cout<< etaBins.size()<<": "<< (*R_vs_E_true_vector).size()<<"\n";
     
@@ -266,7 +292,12 @@ float Response_vs_E_true::correctionFactor(const float pt, const  float eta, con
     // std::cout<<"1D\n";
     return correctedPt1D(pt,eta,area,rho,mu,NPV)/pt;
 }
+
 Response_vs_E_true::~Response_vs_E_true(){
     std::cout << "Finished the loop\n";
+
+    drawingHistograms(R_vs_E_true_vector);
+    
+    std::cout << "\nSaved histograms\n";
 }
 #endif
