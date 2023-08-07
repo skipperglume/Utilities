@@ -108,7 +108,7 @@ void Response_vs_E_true::Response_Control( std::string path_to_files, std::strin
     /**/
     int indexEntry;
     const float percent = 0.06;
-
+    const Double_t one = 1.0;
     functions.push_back([&]() { displayProgress(indexEntry, N_Entries, percent); });
     functions.push_back([&]() { fill2DHistograms(R_vs_E_true_vector, etaBins, Eta, Energy, Response, Weight); });
     
@@ -208,7 +208,9 @@ void Response_vs_E_true::Response_Control( std::string path_to_files, std::strin
     std::cout<< "Numbers of reco jets: "<<N_Jets_reco<<"\n";
     std::cout<< "Numbers of truth jets: "<<N_Jets_true<<"\n";
     std::cout<< "Total weight of jets: "<<Total_Weight<<"\n";
-    
+    delete R_vs_E_true;
+    delete tc;
+    delete ch;
     return ;
 }
 
@@ -222,6 +224,7 @@ void Response_vs_E_true::Response_Control( std::string path_to_files, std::strin
 
 // g++ -o Run Response_Control.cxx `root-config --cflags --glibs` && ./Run "./Input_Files/MC23a_PFlow.txt" "IsolatedJet_tree" "50000" "Reco" "-4.5" "4.5" "NoJetCal" "-1"
 // g++ -o Run Response_Control.cxx `root-config --cflags --glibs` && ./Run "./Input_Files/MC23a_PFlow_test.txt" "IsolatedJet_tree" "100" "Reco" "-4.5" "4.5" "NoJetCal" "-1" 2>&1 | tee > log.txt
+// g++ -o Run Response_Control.cxx `root-config --cflags --glibs` && ./Run "./Input_Files/MC23a_UFOCSSK_test.txt" "IsolatedJet_tree" "100" "Reco" "-4.5" "4.5" "NoJetCal" "-1" 2>&1 | tee > log.txt
 
 //+I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+
 int main ( int argc ,char* argv[] ){
