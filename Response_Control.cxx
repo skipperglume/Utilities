@@ -79,9 +79,9 @@ void Response_vs_E_true::Response_Control( std::string path_to_files, std::strin
     ch->SetBranchAddress("njet", &njet, &b_njet);
     ch->SetBranchAddress("rho", &rho, &b_rho);
     ch->SetBranchAddress("NPV", &NPV, &b_NPV);
-    ch->SetBranchAddress("R_weight", &weight_tot, &b_weight_tot);
+    // ch->SetBranchAddress("R_weight", &weight_tot, &b_weight_tot);
     // ch->SetBranchAddress("weight_tot", &weight_tot, &b_weight_tot);
-    // ch->SetBranchAddress("weight", &weight_tot, &b_weight_tot);
+    ch->SetBranchAddress("weight", &weight_tot, &b_weight_tot);
     ch->SetBranchAddress("actualInteractionsPerCrossing", &mu, &b_mu);
 
     ch->SetBranchAddress("jet_ConstitPt", &pt, &b_pt);
@@ -216,12 +216,16 @@ void Response_vs_E_true::Response_Control( std::string path_to_files, std::strin
 
 
 // g++ -o Run Response_Control.cxx `root-config --cflags --glibs`
+// rm ./R_vs_Etrue/* && ./Run "./Input_Files/MC23a_PFlow_test.txt" "IsolatedJet_tree" "500" "Reco" "-4.5" "4.5" "NoJetCal" "-1"
 //  g++ -o Run Response_Control.cxx `root-config --cflags --glibs` && ./Run "partial_mc20a.txt" "IsolatedJet_tree" 3000
 // g++ -o Run Response_Control.cxx `root-config --cflags --glibs` && ./Run "partion_With_Jet_Calibrator.txt" "IsolatedJet_tree" 3000
 // g++ -o Run Response_Control.cxx `root-config --cflags --glibs` && ./Run "partion_WOUT_Jet_Calibrator.txt" "IsolatedJet_tree" 3000
 // ./Run "partion_With_Jet_Calibrator.txt" "IsolatedJet_tree" "3000" "Reco" "-4.5" "4.5" "JetCal"
 // ./Run "partion_WOUT_Jet_Calibrator.txt" "IsolatedJet_tree" "3000" "Reco" "-4.5" "4.5" "NoJetCal"
 
+
+
+// ./Run "./Input_Files/mc20test.txt" "IsolatedJet_tree" "1" "Reco" "-4.5" "4.5" "NoJetCal" "-1"
 // g++ -o Run Response_Control.cxx `root-config --cflags --glibs` && ./Run "./Input_Files/MC23a_PFlow.txt" "IsolatedJet_tree" "50000" "Reco" "-4.5" "4.5" "NoJetCal" "-1"
 // g++ -o Run Response_Control.cxx `root-config --cflags --glibs` && ./Run "./Input_Files/MC23a_PFlow_test.txt" "IsolatedJet_tree" "100" "Reco" "-4.5" "4.5" "NoJetCal" "-1" 2>&1 | tee > log.txt
 // g++ -o Run Response_Control.cxx `root-config --cflags --glibs` && ./Run "./Input_Files/MC23a_UFOCSSK_test.txt" "IsolatedJet_tree" "100" "Reco" "-4.5" "4.5" "NoJetCal" "-1" 2>&1 | tee > log.txt

@@ -48,13 +48,13 @@ public:
     Int_t           NPV;
     Int_t           njet;
     Float_t         mu;
-    Double_t        weight_tot;
-    // Float_t        weight_tot;
+    // Double_t        weight_tot;
+    Float_t        weight_tot;
     TH2F * R_vs_E_true;
     Float_t         rho;
     Float_t pTmuNPVcorrection=0.0, calib4=0.0, term2=0.0;
-    std::vector<double> NPVTerm =    {0.040, -0.002, 0.073, -0.065, -0.001, 0.103, 0.467, -0.212, 0.051, 0.345, 0.054, 0.015};
-    std::vector<double> MuTerm =      {-0.012, -0.007, -0.054, -0.022, -0.074, -0.098, -0.345, 0.119, -0.056, -0.234, -0.019, 0.037};
+    std::vector<double> NPVTerm =    {0.027, -0.007, 0.150, -0.120, 0.118, 0.055, 0.569, -0.361, 0.108, 0.292, 0.013, -0.351};
+    std::vector<double> MuTerm =      {-0.012, -0.003, -0.076, 0.055, -0.091, -0.042, -0.332, 0.179, -0.071, -0.180, -0.000, 0.181};
     std::vector<double> ResidualAbsEtaBins = { 0, 0.9, 1.2, 1.5, 1.8, 2.4, 2.8, 3.2, 3.5, 4.0, 4.3, 6.0 };
     TChain* ch ;
     std::string TreeName = "IsolatedJet_tree";
@@ -100,7 +100,8 @@ public:
     uint numberOfBins;
     void makeBinning(float eta_min , float eta_max );
     // const void drawingHistograms(const std::shared_ptr<std::vector<TH2D>>  &histogramVector);
-    void drawingHistograms(const std::shared_ptr<std::vector<TH2D>>   &histogramVector)const{
+    template<class T>    
+    void drawingHistograms(const std::shared_ptr<std::vector<TH2D>>   &histogramVector, const std::vector<T> &bins)const{
 
     //  TFile *f = new TFile("file.root", "RECREATE");  // recreate deletes the file if it already exists
     // // create and do stuff...
@@ -109,6 +110,7 @@ public:
     //  h1->Write();  // you can specify here the name of the canvas inside the file, e.g. h1->Write("canvas1")...
     //  h2->Write();
     //  f->Close();
+    int count = 0;
     for(  TH2D &histo2D: *histogramVector){
         TCanvas tc  ("canvasToSave", "canvasToSave", 2800, 1600);
         TString name = "./R_vs_Etrue/";
@@ -118,14 +120,35 @@ public:
         std::cout<< histo2D.GetName()<<" "<<histo2D.ClassName()<<" ";
         tc.cd();
         gPad->SetLogx(1);
-        histo2D.Draw("COLZ");
-        tc.SaveAs(name);
 
+
+        histo2D.Draw("COLZ");
+        TLatex latex;
+        latex.SetTextSize(0.045);
+        latex.SetTextAlign(13);  //align at top
+        latex.DrawLatex(100,-1,"#it{#bf{ATLAS}} Internal");
+        
+        
+        TString leftEdge=Form("%0.2f", bins[count]);
+        TString rghtEdge=Form("%0.2f", bins[count+1]);
+        TString label = "#eta #in [";
+        label += leftEdge; 
+        label += ", "; 
+        label += rghtEdge; 
+        label += "]"; 
+        latex.SetTextSize(0.030);
+        latex.DrawLatex(2000,-1.3, label);
+        tc.SaveAs(name);
+        count++;
     }
     
     return;
     }
 };
+//+I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+
+// get name for stacked plots
+// const char *current_file_name = Myselector::fChain->GetCurrentFile()->GetName();
+
 //+I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+
 template<class T>
 int findBinIndex (const std::vector<T> &binning, const T value) {
@@ -296,7 +319,7 @@ float Response_vs_E_true::correctionFactor(const float pt, const  float eta, con
 Response_vs_E_true::~Response_vs_E_true(){
     std::cout << "Finished the loop\n";
 
-    drawingHistograms(R_vs_E_true_vector);
+    drawingHistograms(R_vs_E_true_vector, etaBins);
     
     std::cout << "\nSaved histograms\n";
 }
