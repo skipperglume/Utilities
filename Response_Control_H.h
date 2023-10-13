@@ -96,6 +96,17 @@ public:
     template<class T>    
     void fill2DHistograms(std::shared_ptr<std::vector<TH2D>> const &histogramVector, const std::vector<T> &bins, const T &threshold, const Double_t &x, const Double_t &y, const Double_t &weight);
     std::shared_ptr<std::vector<TH2D>> R_vs_E_true_vector = std::make_shared<std::vector<TH2D>>();
+    template<class T>    
+    void create2DHistograms(std::shared_ptr<std::vector<TH2D>> const &histogramVector, const std::vector<T> &bins, const TString & name, const uint sizeX, const double lowValueX, const double upValueX, const uint sizeY, const double lowValueY, const double upValueY);
+    template<class T>    
+    void create2DHistograms(std::shared_ptr<std::vector<TH2D>> const &histogramVector, const std::vector<T> &bins, const TString & name, const uint sizeX, const double & values, const uint sizeY, const double lowValueY, const double upValueY);
+
+    template<class T>    
+    void fill1DHistograms(std::shared_ptr<std::vector<TH1D>> const &histogramVector, const std::vector<T> &bins, const T &threshold, const Double_t &x, const Double_t &weight);
+    template<class T>    
+    void create1DHistograms(std::shared_ptr<std::vector<TH1D>> const &histogramVector, const std::vector<T> &bins, const TString & name, const double lowValue, const double upValue, const uint size);
+    std::shared_ptr<std::vector<TH1D>> rho_vector ;
+
     std::vector<float> etaBins;
     uint numberOfBins;
     void makeBinning(float eta_min , float eta_max );
@@ -145,6 +156,7 @@ public:
     return;
     }
 };
+
 //+I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+
 // get name for stacked plots
 // const char *current_file_name = Myselector::fChain->GetCurrentFile()->GetName();
@@ -187,6 +199,28 @@ void Response_vs_E_true::displayVector(const std::vector<T> & l_vector){
 }
 //+I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+
 template<class T>
+void Response_vs_E_true::create1DHistograms(std::shared_ptr<std::vector<TH1D>> const &histogramVector, const std::vector<T> &bins, const TString & name, const double lowValue, const double upValue, const uint size){
+    std::vector<TH1D> TH1DVector;
+    for( uint i = 0; i< bins.size(); i++ ){
+        TH1D histVector(name, name, size, lowValue, upValue );
+        TH1DVector.push_back(histVector);
+    }
+    histogramVector = std::make_shared<std::vector<TH1D>>(TH1DVector);
+    return;
+}
+//+I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+
+template<class T>
+void Response_vs_E_true::create2DHistograms(std::shared_ptr<std::vector<TH2D>> const &histogramVector, const std::vector<T> &bins, const TString & name, const uint sizeX,const double lowValueX, const double upValueX, const uint sizeY, const double lowValueY, const double upValueY){
+    std::vector<TH2D> TH2DVector;
+    for( uint i = 0; i< bins.size(); i++ ){
+        TH2D histVector(name, name, sizeX, lowValueX, upValueX, sizeY, lowValueY, upValueY );
+        TH2DVector.push_back(histVector);
+    }
+    histogramVector = std::make_shared<std::vector<TH2D>>(TH2DVector);
+    return;
+}
+//+I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+
+template<class T>
 void Response_vs_E_true::fill2DHistograms(std::shared_ptr<std::vector<TH2D>> const &histogramVector, const std::vector<T> &bins, const T &threshold, const Double_t &x, const Double_t &y, const Double_t &weight){
     if (  (*histogramVector).size() != bins.size()-1){
         std::cout<<"ERRROR: wrong binning\n";
@@ -195,6 +229,21 @@ void Response_vs_E_true::fill2DHistograms(std::shared_ptr<std::vector<TH2D>> con
     const int binIndex = findBinIndex(bins, threshold);
     if(binIndex < 0){return;}
     (*histogramVector)[binIndex].Fill(x,y,weight);
+    // std::shared_ptr<Base> const& s
+
+    
+    return;
+}
+//+I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+
+template<class T>
+void Response_vs_E_true::fill1DHistograms(std::shared_ptr<std::vector<TH1D>> const &histogramVector, const std::vector<T> &bins, const T &threshold, const Double_t &x, const Double_t &weight){
+    if (  (*histogramVector).size() != bins.size()-1){
+        std::cout<<"ERRROR: wrong binning\n";
+        exit(1);
+    }
+    const int binIndex = findBinIndex(bins, threshold);
+    if(binIndex < 0){return;}
+    (*histogramVector)[binIndex].Fill( x, weight );
     // std::shared_ptr<Base> const& s
 
     
@@ -226,13 +275,16 @@ void Response_vs_E_true::makeBinning(float eta_min, float eta_max ){
     std::cout<< etaBins.size()<<": ";
     displayVector(etaBins);
     TString nameR_vs_Etrue = "response_vs_E_true_";
-    // R_vs_E_true = new TH2F("response v e true","response v e true",  E_Bins_N,E_Bins, 180,-1.2,2.4);
     for ( uint i = 0; i < etaBins.size()-1; i++){
         nameR_vs_Etrue += std::to_string(i);
         TH2D histo(nameR_vs_Etrue, nameR_vs_Etrue, E_Bins_N, E_Bins, 180,-1.2,2.4);
         (*R_vs_E_true_vector).push_back(histo);
         nameR_vs_Etrue = "response_vs_E_true_";
     }
+
+    // fill1DHistograms(rho_vector);
+    // std::shared_ptr<std::vector<TH2D>> const &histogramVector, const std::vector<T> &bins, const TString & name, const uint sizeX,const double lowValueX, const double upValueX, const uint sizeY, const double lowValueY, const double upValueY
+    // create2DHistograms(histogramVector, etaBins, nameR_vs_Etrue, sizeX,  lowValueX, upValueX,  180, -1.2, 2.4);
     std::cout<< etaBins.size()<<": "<< (*R_vs_E_true_vector).size()<<"\n";
     
     return;

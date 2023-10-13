@@ -213,23 +213,6 @@ void Response_vs_E_true::Response_Control( std::string path_to_files, std::strin
     delete ch;
     return ;
 }
-
-
-// g++ -o Run Response_Control.cxx `root-config --cflags --glibs`
-// rm ./R_vs_Etrue/* && ./Run "./Input_Files/MC23a_PFlow_test.txt" "IsolatedJet_tree" "500" "Reco" "-4.5" "4.5" "NoJetCal" "-1"
-//  g++ -o Run Response_Control.cxx `root-config --cflags --glibs` && ./Run "partial_mc20a.txt" "IsolatedJet_tree" 3000
-// g++ -o Run Response_Control.cxx `root-config --cflags --glibs` && ./Run "partion_With_Jet_Calibrator.txt" "IsolatedJet_tree" 3000
-// g++ -o Run Response_Control.cxx `root-config --cflags --glibs` && ./Run "partion_WOUT_Jet_Calibrator.txt" "IsolatedJet_tree" 3000
-// ./Run "partion_With_Jet_Calibrator.txt" "IsolatedJet_tree" "3000" "Reco" "-4.5" "4.5" "JetCal"
-// ./Run "partion_WOUT_Jet_Calibrator.txt" "IsolatedJet_tree" "3000" "Reco" "-4.5" "4.5" "NoJetCal"
-
-
-
-// ./Run "./Input_Files/mc20test.txt" "IsolatedJet_tree" "1" "Reco" "-4.5" "4.5" "NoJetCal" "-1"
-// g++ -o Run Response_Control.cxx `root-config --cflags --glibs` && ./Run "./Input_Files/MC23a_PFlow.txt" "IsolatedJet_tree" "50000" "Reco" "-4.5" "4.5" "NoJetCal" "-1"
-// g++ -o Run Response_Control.cxx `root-config --cflags --glibs` && ./Run "./Input_Files/MC23a_PFlow_test.txt" "IsolatedJet_tree" "100" "Reco" "-4.5" "4.5" "NoJetCal" "-1" 2>&1 | tee > log.txt
-// g++ -o Run Response_Control.cxx `root-config --cflags --glibs` && ./Run "./Input_Files/MC23a_UFOCSSK_test.txt" "IsolatedJet_tree" "100" "Reco" "-4.5" "4.5" "NoJetCal" "-1" 2>&1 | tee > log.txt
-
 //+I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+ +I+
 int main ( int argc ,char* argv[] ){
     std::cout << "+I+\n";
